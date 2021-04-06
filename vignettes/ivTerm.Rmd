@@ -1,0 +1,155 @@
+---
+title: "Getting started with ivTerm"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{ivTerm}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+**2021-04**
+
+An interactive and comprehensive graphic system for functional analysis of meta-omics data.
+
+## 1. Introduction
+
+&emsp;&emsp;ivTerm is an R-shiny package with a user-friendly graphical interface that enables users to inspect functional annotations, compare results across multiple experiments, create customized charts. It utilizes shiny to create an interactive user interface (UI) helping researchers further explore and interpret gene functional analysis results. The combination of term data and gene data provides a full view that helps researchers gain actionable insights. The high interactivity allows a quick examination of complex data. The user-friendly interface allows users to customize plot multiple types of interactive charts and edit details of the corresponding statics image to download for publishing.
+
+## 2. Installation
+
+&emsp;&emsp;ivTerm is a package in the R software environment, which can be freely downloaded as follows:
+
+* Install [R](https://www.r-project.org/)
+* Install [RStudio](https://www.rstudio.com/)
+
+&emsp;&emsp;Check or install packages
+```{r eval=FALSE}
+packages <- c("shiny", "shinyjs", "ggplot2", "ggiraph", "ggnetwork", "igraph", "DT", "RCurl", "XML", "colourpicker", "esquisse")
+palette_packages <- c("ggsci", "randomcoloR", "scales", "viridis", "wesanderson")
+lapply(c(packages, palette_packages), function(x) {
+	if(!require(x, character.only = TRUE)) {
+		install.packages(x, dependencies = TRUE)
+	}})
+```
+
+&emsp;&emsp;Install ivTerm from github.
+```{r eval=FALSE}
+if (!requireNamespace("devtools", quietly = TRUE))
+  install.packages("devtools")
+library(devtools)
+install_github("xiaonui/ivTerm", build_vignettes = TRUE)
+```
+
+## 3. Quick Start
+
+&emsp;&emsp;Load the library 
+```{r eval = FALSE}
+library(ivTerm)
+```
+
+&emsp;&emsp;Run ivTerm using graphic interface. 
+```{r eval = FALSE}
+termTOgene()
+```
+
+## 4. Graphic visualization interface
+
+&emsp;&emsp;The user interface contains three tabs: "Upload File", "Data Selection", and "Visualization". 
+
+### 4.1 Upload file
+
+&emsp;&emsp;To begin the analysis, you need to upload two files (comma-separated (.csv) or tab-separated (.txt) format). The first file should contain at least term ids (the column named 'term_id') and the genes annotated to each term (the column named 'gene'). The column named 'group' is used to compare multiple datasets or groups.
+
+
+```{r echo=FALSE}
+library(ivTerm)
+library(knitr)
+data("demo_igc")
+term_data <- demo_igc$term_data[order(demo_igc$term_data$count, decreasing = F)[1:3], ]
+rownames(term_data) <- NULL
+term_data[nrow(term_data) + 1, ] <- "..."
+term_data$gene <- paste0(substr(term_data$gene, 1, 85), "...")
+kable(term_data[, c("term_id", "gene")], caption = "The first example of term data (1/2)")
+kable(cbind(term_data[, c("term_name", "enrich_cohort", "P_value", "mean_abun_DAN", "mean_abun_CHN")], "..." = "..."),
+      caption = "The first example of term data (2/2)")
+gene_data <- head(demo_igc$gene_data)
+gene_data[nrow(gene_data) + 1, ] <- "..."
+kable(cbind(gene_data[, c("gene", "Gene_Length", "Gene_Completeness_Status", "Cohort_Origin", "Phylum", "Genus")], "..." = "..."), caption = "The first example of gene data")
+```
+
+```{r echo=FALSE}
+data("demo_coral")
+term_data <- demo_coral$term_data[order(demo_coral$term_data$count, decreasing = F)[1:3], ]
+rownames(term_data) <- NULL
+term_data[nrow(term_data) + 1, ] <- "..."
+kable(cbind(term_data[, c("group", "term_id", "gene", "term_name", "p.val")], "..." = "..."), caption = "The second example of term data")
+gene_data <- head(demo_coral$gene_data)
+gene_data[nrow(gene_data) + 1, ] <- "..."
+kable(cbind(gene_data[, c("gene", "log2FoldChange", "baseMean", "pvalue", "padj")], "..." = "..."), 
+      caption = "The second example of gene data")
+
+```
+
+&emsp;&emsp;If you do not have these files ready, you can use the demo data files by clicking on the "Load Demo" button. The first demo is from a metagenomic analysis of the human gut microbiomes from two cohorts. It contains differentially enriched enzymes in carbohydrate metabolism and inormation of related genes. The second demo is derived from a meta-transcriptomic analysis of the scleractinian coral with infection. It contains differentially expressed coral/zooxanthella genes and over-represented GO terms.
+
+&emsp;&emsp;After the data files are uploaded and checked, they will be displayed in tables.
+
+### 4.2 Data selection
+
+&emsp;&emsp;You can filter term data in two steps. If the term data contains a column named ‘group’ to define different groups, you can select the group(s) first. Otherwise, skip the first step. Then, you can view data in aninteractive table for further selection. Functional terms of interest can be selected and then displayed on the right table. These data will be used for plotting.
+
+### 4.3 Visualization
+
+&emsp;&emsp;If the selected data comes from different groups (including the `group` column and the column has multiple values), you can select heatmap or dot chart for visualization. Otherwise, you can choose from bar plot, bubble chart, lollipop chart, network and complex bar plot. The font size of text in axis and legend can be adjusted. The colors can be selected from colour pickers or palettes. There are many color palettes from multiple R packages (ggsci, randomcoloR, scales, viridis, wesanderson) to choose. You can download figures by clicking the download icon in the upper right corner.
+
+&emsp;&emsp;After clicking on a term in a figure, you can get details about this functional term: (i) all contents in the row of it; (ii) more information of it from the web servers (if it is from GO, KEGG or wikipathways); (iii) the data and visualization (pie chart, histogram, density plot, bar plot, bubble chart, box chart, heatmap, violin chart and dumbbell chart) of the annotated genes. 
+
+&emsp;&emsp;These chart types will be described in more detail below.
+
+
+## 5. Visualization of ungrouped terms
+
+&emsp;&emsp;This part will use the first demo to demonstrate the visualization of ungrouped or single group of data. There is no column named group, so the first step of data selection is skipped and you can select data from a table. Then, the data can be displayed using multiple chart types.   
+
+&emsp;&emsp;Each row in the bar plot represents a functional term, and you can select the attributes represented by the x-axis and colors. Functional terms can be divided into left and right parts according to a certain two-category attribute.
+
+&emsp;&emsp;Each point in the bubble chart represents a functional term. You can select the attributes represented by the x-axis, y-axis, the color of the points, and the size of the points.
+
+&emsp;&emsp;Each row in the lollipop chart represents a functional term, and you can select the attributes represented by the x-axis, the color of the points, and the size of the points.
+
+&emsp;&emsp;The x-axis of the complex bar plot represents the number of genes, and the y-axis is the functional term. Genes can be grouped into different blocks. The genes in bars can be sorted according to a certain attribute, and colors can be used to display a specific attribute.
+
+&emsp;&emsp;If you click a term in the figure, more information will be showing in the bottom panel. Firstly, you can view the contents in the row of it. 
+
+&emsp;&emsp;Then, if it is from GO, KEGG or WikiPathways database, more information (like name, class, description, diagram) will be retrieved from the web servers via APIs.
+
+&emsp;&emsp;Finally, you can examine annotated genes in a table and display them in multiple figures.  
+
+
+
+## 6. Visualization of multiple groups
+
+&emsp;&emsp;This part will use the second demo to demonstrate the visualization of multiple groups or datasets. 
+&emsp;&emsp;If the selected data all come from the same group, the grouping information will be ignored, and you can observe data in bar plot, bubble chart, lollipop chart, network and complex bar plot.
+
+&emsp;&emsp;If the selected data comes from multiple groups, you can use heatmap or dotplot to display it.
+
+&emsp;&emsp;Similarly, you can click on the term in the picture to get relevant information.
+
+
+
+Reference:
+
+
+
+
+
+
+
