@@ -1,22 +1,8 @@
----
-title: "Getting started with ivTerm"
-output: rmarkdown::html_vignette
-vignette: >
-  %\VignetteIndexEntry{ivTerm}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
----
 
-```{r, include = FALSE}
-knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>"
-)
-```
-
-**2021-04**
+# ivTerm
 
 ivTerm is an interactive and comprehensive graphic system for functional analysis of meta-omics data.
+
 
 ## 1. Introduction
 
@@ -35,7 +21,7 @@ ivTerm is an interactive and comprehensive graphic system for functional analysi
 
 &emsp;&emsp;Check or install required packages.
 
-```{r eval=FALSE}
+```
 packages <- c("shiny", "shinyjs", "ggplot2", "ggiraph", "ggnetwork", "igraph", "DT", "RCurl", "XML", "colourpicker", "esquisse")
 palette_packages <- c("ggsci", "randomcoloR", "scales", "viridis", "wesanderson")
 lapply(c(packages, palette_packages), function(x) {
@@ -46,22 +32,23 @@ lapply(c(packages, palette_packages), function(x) {
 
 &emsp;&emsp;Install ivTerm from github.
 
-```{r eval=FALSE}
+```
 if (!requireNamespace("devtools", quietly = TRUE))
   install.packages("devtools")
 library(devtools)
 install_github("xiaonui/ivTerm", build_vignettes = TRUE)
 ```
 
+
 ## 3. Quick Start
 
 &emsp;&emsp;Load the library 
-```{r eval = FALSE}
+```
 library(ivTerm)
 ```
 
 &emsp;&emsp;Run ivTerm using graphic interface. 
-```{r eval = FALSE}
+```
 termTOgene()
 ```
 
@@ -69,13 +56,14 @@ termTOgene()
 
 &emsp;&emsp;The user interface contains three tabs: "Upload File", "Data Selection", and "Visualization". 
 
+
 ### 4.1 Upload file
 
 &emsp;&emsp;To begin the analysis, you need to upload two files (comma-separated (.csv) or tab-separated (.txt) format). 
 
 <center>
 <figure>
-<img src='figure/fig1.png' width='70%'>
+<img src='vignettes/figure/fig1.png' width='50%'>
 
 Fig 1. Graphic user interface for input data uploading
 
@@ -85,41 +73,56 @@ Fig 1. Graphic user interface for input data uploading
 
 &emsp;&emsp;The first file (term data) should contain at least term ids (the column named 'term_id') and the genes annotated to each term (the column named 'gene'). Genes are connected by a separator. The separator can be a semicolon, comma, slash, or space. The column named 'group' is optional and used to compare multiple datasets or groups. The second file (gene data) should contain gene labels matching those used in term data and some details of genes. The structure of the data is shown below. 
 
-```{r echo=FALSE, warning=FALSE}
-library(ivTerm)
-library(knitr)
-data("demo_igc")
-term_data <- demo_igc$term_data[order(demo_igc$term_data$count, decreasing = F)[1:3], ]
-rownames(term_data) <- NULL
-term_data[nrow(term_data) + 1, ] <- "..."
-term_data$gene <- paste0(substr(term_data$gene, 1, 85), "...")
-kable(term_data[, c("term_id", "gene")], caption = "The first example of term data (1/2)")
-kable(cbind(term_data[, c("term_name", "enrich_cohort", "P_value", "mean_abun_DAN", "mean_abun_CHN")], "..." = "..."),
-      caption = "The first example of term data (2/2)")
-gene_data <- demo_igc$gene_data[10336:10340, ]
-rownames(gene_data) <- NULL
-gene_data[nrow(gene_data) + 1, ] <- "..."
-kable(cbind(gene_data[, c("gene", "Gene_Length", "Gene_Completeness_Status", "Cohort_Origin", "Phylum", "Genus")], "..." = "..."), caption = "The first example of gene data")
-```
+&nbsp;
 
-```{r echo=FALSE, warning=FALSE}
-data("demo_coral")
-term_data <- demo_coral$term_data[order(demo_coral$term_data$count, decreasing = F)[1:3], ]
-rownames(term_data) <- NULL
-term_data[nrow(term_data) + 1, ] <- "..."
-kable(cbind(term_data[, c("group", "term_id", "gene", "term_name", "p.val")], "..." = "..."), caption = "The second example of term data")
-gene_data <- head(demo_coral$gene_data)
-gene_data[nrow(gene_data) + 1, ] <- "..."
-kable(cbind(gene_data[, c("gene", "log2FoldChange", "baseMean", "pvalue", "padj")], "..." = "..."), 
-      caption = "The second example of gene data")
+<center>The first example of term data</center>
 
-```
+|term_id|gene|term_name|enrich_cohort|P_value|mean_abun_DAN|mean_abun_CHN|...|
+|---|---|---|---|---|---|---|---|
+|K01196|168739,1061735,1125063,1429351,2396955,2681450, 3786103,4284614,5013911,5472907,675251...|glycogen debranching enzyme [EC:2.4.1.25 3.2.1.33]|DAN|0.0015|1.86e-06|2.25e-06|...|
+|K00696|348550,541207,1432586,1489349,1759637,1925571, 2003961,2057616,2064314,2500326,2500973...|sucrose-phosphate synthase [EC:2.4.1.14]|DAN|2.82e-06|4.85e-06|1.75e-06|...|
+|K00692|94503,142982,158676,185965,205094,259894,261947, 265221,285956,304808,319331,446946,45...|levansucrase [EC:2.4.1.10]|CHN|1.02e-06|3.78e-07|1.61e-06|...|
+|...|...|...|...|...|...|...|...|
+
+<center>The first example of gene data</center>
+
+|gene|Gene_Length|Gene_Completeness_Status|Cohort_Origin|Phylum|Genus|...|
+|---|---|---|---|---|---|---|
+|1579397|1221|Complete|EUR|unknown|unknown|...|
+|1579796|1221|Complete|EUR|unknown|unknown|...|
+|1579826|1221|Complete|EUR|Bacteroidetes|Bacteroides|...|
+|1580132|1221|Complete|EUR|Firmicutes|Ruminococcus|...|
+|1580154|1221|Complete|EUR|unknown|unknown|...|
+|...|...|...|...|...|...|...|
+
+
+<center>The second example of term data</center>
+
+|group|term_id|gene|term_name|p.val|...|
+|---|---|---|---|---|---|
+|coral_up|GO:0032741|coral_TRINITY_DN34635_C2_G1 coral_TRINITY_DN55005_C5_G1 coral_TRINITY_DN46011_C0_G2 coral_TRINITY_DN46011_C0_G1 coral_TRINITY_DN52251_C1_G1 coral_TRINITY_DN35049_C2_G1|positive regulation of interleukin-18 production|1.1e-06|...|
+|zooxanthella_down|GO:0009063|zooxanthella_TRINITY_DN46713_C1_G2 zooxanthella_TRINITY_DN46713_C1_G3 zooxanthella_TRINITY_DN42914_C2_G1 zooxanthella_TRINITY_DN48316_C2_G1 zooxanthella_TRINITY_DN50127_C3_G1 zooxanthella_TRINITY_DN47858_C1_G7 zooxanthella_TRINITY_DN45516_C1_G3|cellular amino acid catabolic process|5.73e-06|...|
+|zooxanthella_down|GO:0009310|zooxanthella_TRINITY_DN46713_C1_G2 zooxanthella_TRINITY_DN46713_C1_G3 zooxanthella_TRINITY_DN42914_C2_G1 zooxanthella_TRINITY_DN48316_C2_G1 zooxanthella_TRINITY_DN49474_C3_G1 zooxanthella_TRINITY_DN50127_C3_G1 zooxanthella_TRINITY_DN47858_C1_G7 zooxanthella_TRINITY_DN45516_C1_G3|amine catabolic process|3.49e-06|...|
+|...|...|...|...|...|...|
+
+<center>The second example of gene data</center>
+
+|gene|log2FoldChange|baseMean|pvalue|padj|...|
+|---|---|---|---|---|---|
+|coral_TRINITY_DN42110_C3_G2|-8.294663081|8999.108427|4.56e-92|1.51e-87|...|
+|coral_TRINITY_DN16010_C0_G1|-8.250704858|1143.301217|4.33e-52|7.16e-48|...|
+|coral_TRINITY_DN49507_C3_G4|-7.387803252|4937.169229|4.04e-42|4.45e-38|...|
+|coral_TRINITY_DN46498_C0_G2|-7.194028834|1316.470629|1.18e-40|9.74e-37|...|
+|coral_TRINITY_DN45798_C1_G1|-7.629627563|2125.364107|2.39e-40|1.58e-36|...|
+|coral_TRINITY_DN40312_C4_G7|-7.442776261|692.2305665|4.8e-40|2.64e-36|...|
+|...|...|...|...|...|...|
+
 
 &emsp;&emsp;If you do not have these files ready, you can use the demo data files by clicking on the "Load Demo" button. The first demo is from a metagenomic analysis of the human gut microbiomes from two cohorts. It contains differentially enriched enzymes in carbohydrate metabolism and information of related genes. The second demo is derived from a meta-transcriptomic analysis of the coral with infection. It contains differentially expressed coral/zooxanthella genes and over-represented GO terms.
 
 <center>
 <figure>
-<img src='figure/fig2.png' width='50%'>
+<img src='vignettes/figure/fig2.png' width='50%'>
 
 Figure 2 Panel for loading demo
 
@@ -135,7 +138,7 @@ Figure 2 Panel for loading demo
 
 <center>
 <figure>
-<img src='figure/fig3.png' width='100%'>
+<img src='vignettes/figure/fig3.png' width='100%'>
 
 Figure 3 Data selection by two steps
 
@@ -158,7 +161,7 @@ Figure 3 Data selection by two steps
 
 <center>
 <figure>
-<img src='figure/fig4.png' width='100%'>
+<img src='vignettes/figure/fig4.png' width='100%'>
 
 Figure 4 Data selection in demo1
 
@@ -170,7 +173,7 @@ Figure 4 Data selection in demo1
 
 <center>
 <figure>
-<img src='figure/fig5.png' width='100%'>
+<img src='vignettes/figure/fig5.png' width='100%'>
 
 Figure 5 Showing terms of demo1 in a bar plot
 
@@ -182,7 +185,7 @@ Figure 5 Showing terms of demo1 in a bar plot
 
 <center>
 <figure>
-<img src='figure/fig6.png' width='100%'>
+<img src='vignettes/figure/fig6.png' width='100%'>
 
 Figure 6 Showing terms of demo1 in a bubble chart
 
@@ -194,7 +197,7 @@ Figure 6 Showing terms of demo1 in a bubble chart
 
 <center>
 <figure>
-<img src='figure/fig7.png' width='100%'>
+<img src='vignettes/figure/fig7.png' width='100%'>
 
 Figure 7 Showing terms of demo1 in a lollipop chart
 
@@ -206,7 +209,7 @@ Figure 7 Showing terms of demo1 in a lollipop chart
 
 <center>
 <figure>
-<img src='figure/fig8.png' width='100%'>
+<img src='vignettes/figure/fig8.png' width='100%'>
 
 Figure 8 Showing terms of demo1 in a complex barplot
 
@@ -218,7 +221,7 @@ Figure 8 Showing terms of demo1 in a complex barplot
 
 <center>
 <figure>
-<img src='figure/fig9.png' width='50%'>
+<img src='vignettes/figure/fig9.png' width='50%'>
 
 Figure 9 Details of K01188
 
@@ -230,7 +233,7 @@ Figure 9 Details of K01188
 
 <center>
 <figure>
-<img src='figure/fig10.png' width='100%'>
+<img src='vignettes/figure/fig10.png' width='100%'>
 
 Figure 10 Description of K01188
 
@@ -242,33 +245,33 @@ Figure 10 Description of K01188
 
 <center>
 <figure>
-<img src='figure/fig11.png' width='100%'>
+<img src='vignettes/figure/fig11.png' width='100%'>
 
 Figure 11 The data and visualization of genes annotated to K001188
 
 &nbsp;
 
-<img src='figure/fig12-1.png' width='45%'>
-<img src='figure/fig12-2.png' width='45%'>
+<img src='vignettes/figure/fig12-1.png' width='45%'>
+<img src='vignettes/figure/fig12-2.png' width='45%'>
 
 Figure 12 Occurrence frequency of genes annotated to K001188
 
 &nbsp;
 
-<img src='figure/fig13-1.png' width='45%'>
-<img src='figure/fig13-2.png' width='45%'>
+<img src='vignettes/figure/fig13-1.png' width='45%'>
+<img src='vignettes/figure/fig13-2.png' width='45%'>
 
 Figure 13 The length of genes annotated to K001188
 
 &nbsp;
 
-<img src='figure/fig14.png' width='100%'>
+<img src='vignettes/figure/fig14.png' width='100%'>
 
 Figure 14 Occurrence frequency and taxonomic annotations of genes annotated to K001188
 
 &nbsp;
 
-<img src='figure/fig15.png' width='100%'>
+<img src='vignettes/figure/fig15.png' width='100%'>
 
 Figure 15 The taxonomic classification of genes annotated to K001188
 
@@ -286,19 +289,19 @@ Figure 15 The taxonomic classification of genes annotated to K001188
 
 <center>
 <figure>
-<img src='figure/fig16.png' width='100%'>
+<img src='vignettes/figure/fig16.png' width='100%'>
 
 Figure 16 Data selection in demo2
 
 &nbsp;
 
-<img src='figure/fig17.png' width='100%'>
+<img src='vignettes/figure/fig17.png' width='100%'>
 
 Figure 17 Showing selected terms of demo2 in a network
 
 &nbsp;
 
-<img src='figure/fig18.png' width='100%'>
+<img src='vignettes/figure/fig18.png' width='100%'>
 
 Figure 18 Showing selected terms of demo2 in a complex barplot
 
@@ -311,19 +314,19 @@ Figure 18 Showing selected terms of demo2 in a complex barplot
 
 <center>
 <figure>
-<img src='figure/fig19.png' width='100%'>
+<img src='vignettes/figure/fig19.png' width='100%'>
 
 Figure 19 Data selection in demo2
 
 &nbsp;
 
-<img src='figure/fig20.png' width='100%'>
+<img src='vignettes/figure/fig20.png' width='100%'>
 
 Figure 20 Showing terms of demo2 in a heatmap
 
 &nbsp;
 
-<img src='figure/fig21.png' width='100%'>
+<img src='vignettes/figure/fig21.png' width='100%'>
 
 Figure 21 Showing terms of demo2 in a dot plot
 
@@ -336,25 +339,25 @@ Figure 21 Showing terms of demo2 in a dot plot
 
 <center>
 <figure>
-<img src='figure/fig22.png' width='40%'>
+<img src='vignettes/figure/fig22.png' width='40%'>
 
 Figure 22 Details of GO:0080134
 
 &nbsp;
 
-<img src='figure/fig23.png' width='100%'>
+<img src='vignettes/figure/fig23.png' width='100%'>
 
 Figure 23 Description of GO:0080134
 
 &nbsp;
 
-<img src='figure/fig24.png' width='100%'>
+<img src='vignettes/figure/fig24.png' width='100%'>
 
 Figure 24 Fold Change of genes annotated to GO:0080134
 
 &nbsp;
 
-<img src='figure/fig25.png' width='100%'>
+<img src='vignettes/figure/fig25.png' width='100%'>
 
 Figure 25 Reads count of genes annotated to GO:0080134
 
@@ -367,10 +370,5 @@ Figure 25 Reads count of genes annotated to GO:0080134
 &emsp;&emsp;Li JH, Jia HJ, Cai XH, Zhong HZ, Feng Q, Sunagawa S, Arumugam M, Kultima JR, Prifti E, Nielsen T et al: An integrated catalog of reference genes in the human gut microbiome. Nat Biotechnol 2014, 32(8):834-841.
 
 &emsp;&emsp;Zhou Z, Zhao SM, Tang J, Liu ZQ, Wu YB, Wang Y, Lin SJ: Altered Immune Landscape and Disrupted Coral-Symbiodinium Symbiosis in the Scleractinian Coral Pocillopora damicornis by Vibrio coralliilyticus Challenge. Front Physiol 2019, 10:12.
-
-
-
-
-
 
 
