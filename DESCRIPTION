@@ -16,9 +16,7 @@ LazyData: true
 RoxygenNote: 7.1.1
 Depends: 
     R (>= 4.0.0)
-Suggests: 
-    knitr,
-    rmarkdown,
+Imports:
     DT,
     RCurl,
     XML,
@@ -36,4 +34,7 @@ Suggests:
     tools,
     viridis,
     wesanderson
+Suggests: 
+    knitr,
+    rmarkdown
 VignetteBuilder: knitr
